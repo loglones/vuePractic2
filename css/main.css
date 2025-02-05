@@ -1,0 +1,27 @@
+
+#app{
+    display: flex;
+}
+
+.firstColumn{
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid gray;
+    height: 100%;
+    width: 33.33%;
+}
+.secondColumn{
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid gray;
+    border-left: 1px solid gray;
+    height: 100%;
+    width: 33.33%;
+}
+.thirdColumn{
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid gray;
+    height: 100%;
+    width: 33.33%;
+}
