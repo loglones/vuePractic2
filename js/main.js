@@ -7,19 +7,46 @@ Vue.component('firstColumn', {
             <h3>{{ card.title }}</h3>
             <ul>
                 <li v-for="(item, i) in card.items" :key="i">
-                    <input type="checkbox" @change="checkComplection(card)"> {{ item }}
+                    <input type="checkbox" @change="checkCompletion(card)" v-model="item.checked"> {{ item.text }}
                 </li>
             </ul>
         </div>
-        <form @submit.prevent="addCard">
-            <input v-model="newCardTitle" placeholder="Заголовок карточки" required>
+        <form class="cardAddForm" @submit.prevent="addCard">
+            <input class="titleCardAddForm" v-model="newCardTitle" placeholder="Заголовок карточки" required>
+            <textarea class="textCardAddForm" v-model="newCardItems" placeholder="Пункты через запятую" required></textarea>
+            <button type="submit">Добавить карточку</button>
         </form>
     </div>`,
-    data: {
+    data() {
         return {
-            cards: [
-
-            ]
+            newCardTitle: '',
+            newCardItems: ''
+        }
+    },
+    methods: {
+        addCard() {
+            const itemArray = this.newCardItems.split(',').map(item => ({text: item.trim(), checked: false}));
+            if (itemArray.length >=3 && itemArray.length <= 5) {
+                const newCard = {
+                    title: this.newCardTitle,
+                    items: itemArray,
+                    complitedItems: 0,
+                };
+                this.$emit('card-added', newCard);
+                this.newCardTitle = '';
+                this.newCardItems = '';
+            }
+            else {
+                alert('Количество пунктов должно быть от 3 до 5');
+            }
+        },
+        checkCompletion(card) {
+            const completedCount = card.items.filter(item => item.checked).length;
+            card.completedItems = completedCount;
+            const completionPercentage = (completedCount / card.items.length) * 100;
+            if (completionPercentage > 50) {
+                this.$emit('move-to-second', card);
+            }
         }
     }
 })
@@ -29,6 +56,7 @@ new Vue ({
     data() {
         return {
             firstColumnCards:JSON.parse(localStorage.getItem('firstColumn') || '[]'),
+
         };
     },
     methods: {
@@ -36,6 +64,9 @@ new Vue ({
             if(this.firstColumnCards.length < 3){
                 this.firstColumnCards.push(card);
                 this.saveToLocalStorage();
+            }
+            else {
+                alert("В первой колонке нельзя больше 3 карточек!");
             }
         },
         clearData() {

@@ -11,17 +11,10 @@
     <title>Product App</title>
 </head>
 <body>
-    <button @click="clearData">Очистить данные</button>
+
     <div id="app">
-        <div class="firstColumn">
-
-        </div>
-        <div class="secondColumn">
-
-        </div>
-        <div class="thirdColumn">
-
-        </div>
+        <button class="buttonClearData" @click="clearData">Очистить данные</button>
+        <first-column :cards="firstColumnCards" @card-added="addCardToFirstColumn"></first-column>
     </div>
 </body>
 </html>

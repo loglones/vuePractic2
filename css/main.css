@@ -1,6 +1,7 @@
 
 #app{
     display: flex;
+    position: relative;
 }
 
 .firstColumn{
@@ -24,4 +25,24 @@
     border-left: 1px solid gray;
     height: 100%;
     width: 33.33%;
+}
+.cardAddForm{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 30vh;
+}
+.titleCardAddForm{
+    width: 20vw;
+
+}
+.textCardAddForm{
+    width: 20vw;
+    height: 10vh;
+}
+.buttonClearData{
+    height: 5vh;
+    width: 10vw;
+    position: absolute;
+    margin-left: 50vw;
 }
