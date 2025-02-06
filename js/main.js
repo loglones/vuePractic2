@@ -51,6 +51,33 @@ Vue.component('firstColumn', {
     }
 })
 
+Vue.component('secondColumn', {
+    props: ['cards'],
+    template: `
+    <div class="secondColumn">
+        <h2>Колонка 2</h2>
+        <div v-for="(card, index) in cards" :key="index" class="card">
+        <h3>{{ card.title }}</h3>
+        <ul>
+            <li v-for="(item, i) in card.items" :key="i">
+                <input type="checkbox" @change="checkCompletion(card)" v-model="item.checked"> {{ item.text }}    
+            </li>
+        </ul>
+    </div>`,
+    methods: {
+        checkCompletion(card) {
+            const completedCount = card.items.filter(item => item.checked).length;
+            card.completedItems = completedCount;
+            const completionPercentage = (completedCount / card.items.length) * 100;
+
+            // Если карточка достигла 100% выполнения
+            if (completionPercentage === 100) {
+                this.$emit('move-to-third', card);
+            }
+        }
+    }
+})
+
 new Vue ({
     el: '#app',
     data() {
