@@ -30,7 +30,7 @@ Vue.component('firstColumn', {
                 const newCard = {
                     title: this.newCardTitle,
                     items: itemArray,
-                    complitedItems: 0,
+                    completedItems: 0,
                 };
                 this.$emit('card-added', newCard);
                 this.newCardTitle = '';
@@ -44,7 +44,7 @@ Vue.component('firstColumn', {
             const completedCount = card.items.filter(item => item.checked).length;
             card.completedItems = completedCount;
             const completionPercentage = (completedCount / card.items.length) * 100;
-            if (completionPercentage > 50) {
+            if (completionPercentage >= 50) {
                 this.$emit('move-to-second', card);
             }
         }
@@ -57,12 +57,13 @@ Vue.component('secondColumn', {
     <div class="secondColumn">
         <h2>Колонка 2</h2>
         <div v-for="(card, index) in cards" :key="index" class="card">
-        <h3>{{ card.title }}</h3>
-        <ul>
-            <li v-for="(item, i) in card.items" :key="i">
-                <input type="checkbox" @change="checkCompletion(card)" v-model="item.checked"> {{ item.text }}    
-            </li>
-        </ul>
+            <h3>{{ card.title }}</h3>
+            <ul>
+                <li v-for="(item, i) in card.items" :key="i">
+                    <input type="checkbox" @change="checkCompletion(card)" v-model="item.checked"> {{ item.text }}    
+                </li>
+            </ul>
+        </div>
     </div>`,
     methods: {
         checkCompletion(card) {
@@ -70,7 +71,6 @@ Vue.component('secondColumn', {
             card.completedItems = completedCount;
             const completionPercentage = (completedCount / card.items.length) * 100;
 
-            // Если карточка достигла 100% выполнения
             if (completionPercentage === 100) {
                 this.$emit('move-to-third', card);
             }
@@ -78,12 +78,30 @@ Vue.component('secondColumn', {
     }
 })
 
+Vue.component('thirdColumn', {
+    props: ['cards'],
+    template: `
+    <div class="thirdColumn">
+        <h2>Колонка 3</h2>
+        <div v-for="(card, index) in cards" :key="index" class="card">
+            <h3>{{ card.title }} (Завершено: {{ card.completedAt || 'Не завершено' }})</h3>
+            <ul>
+                <li v-for="(item, i) in card.items" :key="i">
+                    <input type="checkbox" disabled :checked="item.checked"> {{ item.text }}
+                </li>
+            </ul>
+        </div>
+    </div>`
+})
+
 new Vue ({
     el: '#app',
     data() {
         return {
             firstColumnCards:JSON.parse(localStorage.getItem('firstColumn') || '[]'),
+            secondColumnCards: JSON.parse(localStorage.getItem('secondColumn') || '[]'),
 
+            isFirstColumnBlocked: false
         };
     },
     methods: {
@@ -96,20 +114,33 @@ new Vue ({
                 alert("В первой колонке нельзя больше 3 карточек!");
             }
         },
+        moveToSecondColumn(card) {
+            if (this.secondColumnCards.length < 5) {
+                this.firstColumnCards = this.firstColumnCards.filter(c => c !== card);
+                this.secondColumnCards.push(card);
+                this.saveToLocalStorage();
+            } else {
+                alert("Вторая колонка заполнена! Первая колонка заблокирована.");
+                this.isFirstColumnBlocked = true;
+            }
+        },
+
         clearData() {
             localStorage.clear();
             this.firstColumnCards = [];
+            this.secondColumnCards = [];
+
+            this.isFirstColumnBlocked = false;
         },
         saveToLocalStorage() {
             localStorage.setItem('firstColumn', JSON.stringify(this.firstColumnCards));
+            localStorage.setItem('secondColumn', JSON.stringify(this.secondColumnCards));
+
         }
     },
     watch: {
-        firstColumnCards: {
-            handler() {
-                this.saveToLocalStorage();
-            },
-            deep: true,
-        }
+        firstColumnCards: { handler: function () { this.saveToLocalStorage(); }, deep: true },
+        secondColumnCards: { handler: function () { this.saveToLocalStorage(); }, deep: true },
+
     }
 });

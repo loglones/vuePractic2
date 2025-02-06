@@ -14,7 +14,9 @@
 
     <div id="app">
         <button class="buttonClearData" @click="clearData">Очистить данные</button>
-        <first-column :cards="firstColumnCards" @card-added="addCardToFirstColumn"></first-column>
+        <first-column :cards="firstColumnCards" @card-added="addCardToFirstColumn" @move-to-second="moveToSecondColumn"></first-column>
+        <second-column :cards="secondColumnCards" ></second-column>
+
     </div>
 </body>
 </html>
