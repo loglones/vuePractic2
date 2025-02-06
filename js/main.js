@@ -100,7 +100,7 @@ new Vue ({
         return {
             firstColumnCards:JSON.parse(localStorage.getItem('firstColumn') || '[]'),
             secondColumnCards: JSON.parse(localStorage.getItem('secondColumn') || '[]'),
-
+            thirdColumnCards: JSON.parse(localStorage.getItem('thirdColumn') || '[]'),
             isFirstColumnBlocked: false
         };
     },
@@ -124,23 +124,29 @@ new Vue ({
                 this.isFirstColumnBlocked = true;
             }
         },
-
+        moveToThirdColumn(card) {
+            this.secondColumnCards = this.secondColumnCards.filter(c => c !== card);
+            card.completedAt = new Date().toLocaleString();
+            this.thirdColumnCards.push(card);
+            this.saveToLocalStorage();
+            this.isFirstColumnBlocked = false;
+        },
         clearData() {
             localStorage.clear();
             this.firstColumnCards = [];
             this.secondColumnCards = [];
-
+            this.thirdColumnCards = [];
             this.isFirstColumnBlocked = false;
         },
         saveToLocalStorage() {
             localStorage.setItem('firstColumn', JSON.stringify(this.firstColumnCards));
             localStorage.setItem('secondColumn', JSON.stringify(this.secondColumnCards));
-
+            localStorage.setItem('thirdColumn', JSON.stringify(this.thirdColumnCards));
         }
     },
     watch: {
         firstColumnCards: { handler: function () { this.saveToLocalStorage(); }, deep: true },
         secondColumnCards: { handler: function () { this.saveToLocalStorage(); }, deep: true },
-
+        thirdColumnCards: { handler: function () { this.saveToLocalStorage(); }, deep: true }
     }
 });
