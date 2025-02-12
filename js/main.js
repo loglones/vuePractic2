@@ -25,11 +25,11 @@ Vue.component('firstColumn', {
     },
     methods: {
         addCard() {
-            const itemArray = this.newCardItems.split(',').map(item => ({text: item.trim(), checked: false}));
+            const itemArray = this.newCardItems.split(',').map(item => item.trim()).filter(item => item !== '');
             if (itemArray.length >=3 && itemArray.length <= 5) {
                 const newCard = {
                     title: this.newCardTitle,
-                    items: itemArray,
+                    items: itemArray.map(text => ({ text, checked: false })),
                     completedItems: 0,
                 };
                 this.$emit('card-added', newCard);
@@ -44,6 +44,8 @@ Vue.component('firstColumn', {
             const completedCount = card.items.filter(item => item.checked).length;
             card.completedItems = completedCount;
             const completionPercentage = (completedCount / card.items.length) * 100;
+
+
             if (completionPercentage >= 50) {
                 this.$emit('move-to-second', card);
             }
@@ -71,9 +73,16 @@ Vue.component('secondColumn', {
             card.completedItems = completedCount;
             const completionPercentage = (completedCount / card.items.length) * 100;
 
-            if (completionPercentage === 100) {
+
+            if (completionPercentage < 55) {
+                this.moveBackToFirstColumn(card);
+            } else if (completionPercentage === 100) {
+
                 this.$emit('move-to-third', card);
             }
+        },
+        moveBackToFirstColumn(card) {
+            this.$emit('move-back-to-first', card);
         }
     }
 })
@@ -94,11 +103,11 @@ Vue.component('thirdColumn', {
     </div>`
 })
 
-new Vue ({
+new Vue({
     el: '#app',
     data() {
         return {
-            firstColumnCards:JSON.parse(localStorage.getItem('firstColumn') || '[]'),
+            firstColumnCards: JSON.parse(localStorage.getItem('firstColumn') || '[]'),
             secondColumnCards: JSON.parse(localStorage.getItem('secondColumn') || '[]'),
             thirdColumnCards: JSON.parse(localStorage.getItem('thirdColumn') || '[]'),
             isFirstColumnBlocked: false
@@ -106,11 +115,10 @@ new Vue ({
     },
     methods: {
         addCardToFirstColumn(card) {
-            if(this.firstColumnCards.length < 3){
+            if (this.firstColumnCards.length < 3) {
                 this.firstColumnCards.push(card);
                 this.saveToLocalStorage();
-            }
-            else {
+            } else {
                 alert("В первой колонке нельзя больше 3 карточек!");
             }
         },
@@ -122,6 +130,16 @@ new Vue ({
             } else {
                 alert("Вторая колонка заполнена! Первая колонка заблокирована.");
                 this.isFirstColumnBlocked = true;
+            }
+        },
+        moveToFirstColumnFromSecond(card) {
+            this.secondColumnCards = this.secondColumnCards.filter(c => c !== card);
+
+            if (this.firstColumnCards.length < 3) {
+                this.firstColumnCards.push(card);
+                this.saveToLocalStorage();
+            } else {
+                alert("Первая колонка заполнена! Карточка не может быть перемещена.");
             }
         },
         moveToThirdColumn(card) {
